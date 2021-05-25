@@ -6,7 +6,7 @@ exports.isAuth = (req, res, next) => {
 		jwt.verify(token, process.env.JWT_SECRET_TOKEN, (err, user) => {
 			if (err) return res.status(400).send('invalid token');
 			else {
-				req.user = user;
+				req.user = user; // the data in jwt.sign(data, secret) ==>> will be userId: user._id
 				next();
 			}
 		});
