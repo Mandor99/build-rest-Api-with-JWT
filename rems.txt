@@ -1,0 +1,131 @@
+1. requests.rest ==> file to can get the response in the editor [like postman test api]
+    // GET http://localhost:3000/posts
+    // POST http://localhost:3000/login
+        content-Type: application-/json
+        {name: 'mando'}
+
+2. create jwt ==> 
+    a. const jwt = require('jsonwebtoken')
+    b. app.use(express.json()) => to can pass json to the route 
+        and the data will be in {req.body}
+
+3. generate the token in the route and create data in the POST method
+    a. app.post('/login', (req, res, next) => {
+        const user = {name: req.body.name}
+        * const token = jwt.sign(user, 'secret...')
+        * res.json({token: token})
+    }) ==> will return the token (u need it to can get data)
+
+4. verify the token => (with a middleware like authGuard)
+    a. const isAuth = (req, res, next) => {
+        * const token = req.header('auth')
+        if(token == null) return res.sendStatus(401)
+        * jwt.verify(token, 'secret...', (err, user) => {
+            if(err) return res.sendStatus(403) //not access
+            req.user = user //set req.user
+            next()
+        })
+    }
+    ==> app.post('/login', isAuth, () => {})
+
+5. get the data if user
+    a. app.get('/post', (req, res, next) => {
+        res.json({post: req.user.name })
+    })
+
+* * * you will get the post if user with make the header in the GET === the token u received from the post middleware
+    ===>> GET url/posts 
+            auth: 'the generated token from the post method'
+
+* * * * * * * * * * * * * * * *  * * * * * * * * * * * * *  ** * *  * * * **  * * * * * * * * * 
+* * * * *  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+1. signUp/logIn with (JWT) and cookies ==>>
+    a. const cookieParser = require('cookie-parser')
+    b. app.use(cookieParser()) // to be as a middleware and pass res.cookie()
+
+    c. in front end ==>> [fetch data and get/post the data]
+        1. form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const email = form.email.value; const password = form.password.value;
+            try {
+                const res = await fetch('/signup', {
+                    method: 'POST',
+                    headers: {'content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                })
+                const data = await res.json()
+            } catch (err) {clg(Err)}
+        })
+
+    d. in server 
+        1. in authController ==>>
+            exports.postSignUp = (...) => {
+                //add user data to DB || logIn user
+                .then((user) => {
+                 *   const token = jwt.sign({user._id}, 'auth secret')
+                 *   res.cookie('jwtAuthKey', token)
+                 *   res.statue(201).json({user: user._id})
+                }).catch(err => {res.status(400).json({err})})
+            }
+
+    e. in protected router ==>> (verify the token)
+        1. const jwt = require('jsonwebtoken')
+        2. exports.isAuth = (req, res, next) => {
+            const token = req.cookies.jwtAuthKey
+            if(token) {
+                jwt.verify(token, 'auth secret', (err, userToken) => {
+                    if(err) {res.redirect('/login')}
+                    else {next()}
+                })
+            } else {res.redirect('/login')}
+        }
+
+    f. logOut in logOut controller ==>> just empty the secret auth
+        1. exports.getLogOut = (req, res) => {
+            res.cookies('jwtAuthKey', ''. {maxAge: 1})
+            res.redirect('/')
+        }
+
+    g. check if user is exist (isUser) ==>> with the verify token to can show/hide links in the views files
+        1. const jwt = require('jsonwebtoken')
+        2. exports.isUser = (req, res, next) => {
+            const token = req.cookies.jwtAuthKey
+            if(token) {
+                jwt.verify(token, 'auth secret', async (err, userToken) => {
+                    if(err) {
+                        res.locals.userProp === null // res.locals => to make the prop[userProp] global in views files
+                        next()
+                    } else {
+                        let userId = await User.findById({userToken.id}) // i imported the user from the model
+                        res.locals.userProp = userId
+                        next()
+                    }
+                })
+            } else {
+                res.locals.userProp === null
+                next()
+            }
+        }
+
+        3. ** in app.js ==>> app.get('*', isUser) // '*' is all routes to can use it in all views files
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
