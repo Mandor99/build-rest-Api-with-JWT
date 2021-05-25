@@ -3,6 +3,7 @@ const app = express();
 const authRouter = require('./routes/auth.router');
 const mongoose = require('mongoose');
 const env = require('dotenv');
+const postsRouter = require('./routes/posts.router');
 
 //config env file
 env.config();
@@ -19,6 +20,7 @@ app.use(express.json());
 
 //use middleware
 app.use('/api/user', authRouter);
+app.use('/api', postsRouter);
 
 app.listen(3000, (err) => {
 	console.log('server is on bort 3000 ...');

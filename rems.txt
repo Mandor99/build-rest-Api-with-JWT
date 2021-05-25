@@ -63,7 +63,7 @@
                 //add user data to DB || logIn user
                 .then((user) => {
                  *   const token = jwt.sign({user._id}, 'auth secret')
-                 *   res.cookie('jwtAuthKey', token)
+                 *   res.cookie('jwtAuthKey', token) // if u don't use cookie u can make it with => res.header('jwtAuthKey', token)
                  *   res.statue(201).json({user: user._id})
                 }).catch(err => {res.status(400).json({err})})
             }
@@ -108,24 +108,4 @@
         }
 
         3. ** in app.js ==>> app.get('*', isUser) // '*' is all routes to can use it in all views files
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
